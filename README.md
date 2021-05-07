@@ -1,5 +1,5 @@
 # round-table-app
-Table app for Round 
+Table app for turn taking (ex. standup)
 
 ## Debugging tool
 
