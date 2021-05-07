@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Node",
+        "target": "ES6",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": false,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "types": []
+    },
+    "files": [
+        "src/index.ts",
+    ]
+}

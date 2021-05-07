@@ -1,0 +1,8 @@
+settings.json
+/node_modules
+/.vs
+/.vscode
+/ssl
+/dist
+/src/**/**.js
+.DS_Store
