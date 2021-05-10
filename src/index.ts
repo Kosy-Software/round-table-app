@@ -7,7 +7,7 @@ import { ClientInfo } from '@kosy/kosy-app-api/types';
 import { KosyApi } from '@kosy/kosy-app-api';
 import { RoundManager } from "./round_manager";
 
-module Kosy.Integration.Youtube {
+module Kosy.Integration.Round {
     export class App {
         private state: AppState = { notes: null, roundManager: null };
         private initializer: ClientInfo;
@@ -27,11 +27,10 @@ module Kosy.Integration.Youtube {
             this.currentClient = initialInfo.clients[initialInfo.currentClientUuid];
             this.state = initialInfo.currentAppState ?? this.state;
             if (this.state.roundManager == null) {
-                this.state.roundManager = new RoundManager();
+                this.state.roundManager = new RoundManager((message) => this.processComponentMessage(message));
                 this.state.roundManager.addMember(this.currentClient);
             } else {
-                console.log(this.state);
-                this.state.roundManager = new RoundManager(this.state.roundManager.members);
+                this.state.roundManager = new RoundManager((message) => this.processComponentMessage(message), this.state.roundManager.members);
             }
             this.renderComponent();
 
@@ -75,12 +74,18 @@ module Kosy.Integration.Youtube {
                     break;
                 case "receive-end-turn":
                     this.state.roundManager.endTurn();
-                    console.log(this.state.roundManager);
                     if (!this.state.roundManager.haveAllMembersTakenTurn()) {
                         this.renderComponent();
                     } else {
                         this.kosyApi.stopApp();
                     }
+                    break;
+                case "receive-update-turn":
+                    this.state.roundManager.isPaused = !this.state.roundManager.isPaused;
+                    this.renderComponent();
+                    break;
+                case "receive-update-timer":
+                    this.renderComponent();
                     break;
             }
         }
@@ -93,6 +98,12 @@ module Kosy.Integration.Youtube {
                     break;
                 case "end-turn":
                     this.kosyApi.relayMessage({ type: "receive-end-turn" });
+                    break;
+                case "update-turn":
+                    this.kosyApi.relayMessage({ type: "receive-update-turn", payload: message.payload });
+                    break;
+                case "update-timer":
+                    this.kosyApi.relayMessage({ type: "receive-update-timer" });
                     break;
                 default:
                     break;

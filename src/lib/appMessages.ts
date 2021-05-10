@@ -2,7 +2,7 @@ import { Member } from "./member"
 
 /// Messages that are relayed to all of the clients
 export type AppMessage =
-    | ReceiveStartApplication | ReceiveEndTurn
+    | ReceiveStartApplication | ReceiveEndTurn | ReceiveUpdateTimer | ReceiveUpdateTurn
 
 export interface ReceiveStartApplication {
     type: "receive-start-application";
@@ -13,9 +13,18 @@ export interface ReceiveEndTurn {
     type: "receive-end-turn";
 }
 
+export interface ReceiveUpdateTurn {
+    type: "receive-update-turn";
+    payload: boolean;
+}
+
+export interface ReceiveUpdateTimer {
+    type: "receive-update-timer";
+}
+
 /// Internal component messages
 export type ComponentMessage =
-    | StartApplication | EndTurn
+    | StartApplication | EndTurn | UpdateTimer | UpdateTurn
 
 export interface StartApplication {
     type: "start-application";
@@ -24,5 +33,14 @@ export interface StartApplication {
 
 export interface EndTurn {
     type: "end-turn";
+}
+
+export interface UpdateTurn {
+    type: "update-turn";
+    payload: boolean;
+}
+
+export interface UpdateTimer {
+    type: "update-timer";
 }
 

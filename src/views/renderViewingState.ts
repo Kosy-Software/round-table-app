@@ -10,11 +10,27 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         notesElement.innerHTML = state.notes;
     }
 
-    console.log("Current speaker: " + state.roundManager.currentSpeaker?.clientInfo?.clientName);
-
     let endTurnButton = viewingElement.querySelector("#end-turn") as HTMLInputElement;
     endTurnButton.onclick = (event: Event) => {
         dispatch({ type: "end-turn" });
+    }
+
+    let updateTurnButton = viewingElement.querySelector("#update-turn") as HTMLInputElement;
+    let pauseImage = updateTurnButton.querySelector("#pause") as HTMLImageElement;
+    //let playImage = updateTurnButton.querySelector("#play") as HTMLImageElement;
+    pauseImage.style.visibility = state.roundManager.isPaused ? 'hidden' : 'shown';
+
+    updateTurnButton.onclick = (event: Event) => {
+        dispatch({ type: "update-turn", payload: !state.roundManager.isPaused });
+    }
+
+    if (state.roundManager.timeTurnStarted != null) {
+        let timerElement = viewingElement.querySelector('#timer');
+        timerElement.innerHTML = formatDifference(state.roundManager.timeTurnStarted, state.roundManager.pausedTime);
+    }
+
+    if (state.roundManager.isPaused) {
+        state.roundManager.pausedTime += 1000;
     }
 
     if (state.roundManager.currentSpeaker != null) {
@@ -33,4 +49,18 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
     }
 
     return viewingElement;
+}
+
+function formatDifference(startDate: Date, pausedTime: number): string {
+    let updatedTime = new Date().getTime();
+
+    let difference = (updatedTime - startDate.getTime()) - pausedTime;
+
+    let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    let minutesString = (minutes < 10) ? "0" + minutes : minutes;
+    let secondsString = (seconds < 10) ? "0" + seconds : seconds;
+
+    return minutesString + ':' + secondsString;
 }

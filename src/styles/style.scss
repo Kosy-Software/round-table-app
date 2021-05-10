@@ -165,10 +165,6 @@ button {
     .turn {
         align-items: center;
         text-align: center;
-    
-        button {
-            margin-top: 20px;
-        }
     }
 
     .notes{
@@ -184,4 +180,38 @@ button {
     .highlight {
         color: colors.$color-primary;
     }
+}
+
+.input-row{
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 20px;
+    padding-left: 60px;
+    padding-right: 60px;
+    max-height: 52px;
+}
+
+.timer-box {
+    background-color: colors.$color-grey-light;
+    color: colors.$color-primary;
+    font-weight: bold;
+    padding: 16px 20px;
+    border-radius: $button-border-radius;
+    margin-right: 10px;
+    text-align: center;
+}
+
+#update-turn {  
+    margin-right: 10px;
+}
+
+#end-turn {
+    flex-grow: 2;
+}
+
+.active {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 30px;    
 }
