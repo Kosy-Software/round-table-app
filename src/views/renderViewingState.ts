@@ -15,17 +15,18 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         dispatch({ type: "end-turn" });
     }
 
-    let pauseTurnButton = viewingElement.querySelector("#pause-turn") as HTMLInputElement;
-    let playTurnButton = viewingElement.querySelector("#play-turn") as HTMLInputElement;
+    console.log(state.roundManager);
 
-    pauseTurnButton.style.display = state.roundManager.isPaused ? 'none' : 'shown';
-    playTurnButton.style.display = state.roundManager.isPaused ? 'shown' : 'none';
+    let updateTurnButton = viewingElement.querySelector("#update-turn") as HTMLInputElement;
 
-    playTurnButton.onclick = (event: Event) => {
-        dispatch({ type: "update-turn", payload: true });
-    }
-    pauseTurnButton.onclick = (event: Event) => {
-        dispatch({ type: "update-turn", payload: false });
+    let playImage = viewingElement.querySelector('#play') as HTMLImageElement;
+    let pauseImage = viewingElement.querySelector('#pause') as HTMLImageElement;
+
+    pauseImage.style.display = state.roundManager.isPaused ? 'none' : 'shown';
+    playImage.style.display = state.roundManager.isPaused ? 'shown' : 'none';
+
+    updateTurnButton.onclick = (event: Event) => {
+        dispatch({ type: "update-turn", payload: !state.roundManager.isPaused });
     }
 
     let timerElement = viewingElement.querySelector('#timer');
@@ -44,8 +45,7 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         if (state.roundManager.currentSpeaker.clientInfo.clientUuid == state.currentClient.clientUuid) {
             speakerElement.innerHTML = 'It\s <span class="highlight">your</span> turn now!';
         } else {
-            pauseTurnButton.style.display = 'none';
-            playTurnButton.style.display = 'none';
+            updateTurnButton.style.display = 'none';
             endTurnButton.style.display = 'none';
             speakerElement.innerHTML = state.roundManager.getNextSpeaker() != null ? `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking a turn` : `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking the <span class="highlight">last</span> turn`;
         }

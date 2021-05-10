@@ -26,12 +26,14 @@ module Kosy.Integration.Round {
             this.initializer = initialInfo.clients[initialInfo.initializerClientUuid];
             this.currentClient = initialInfo.clients[initialInfo.currentClientUuid];
             this.state = initialInfo.currentAppState ?? this.state;
+
             if (this.state.roundManager == null) {
-                this.state.roundManager = new RoundManager((message) => this.processComponentMessage(message));
+                this.state.roundManager = new RoundManager();
                 this.state.roundManager.addMember(this.currentClient);
             } else {
-                this.state.roundManager = new RoundManager((message) => this.processComponentMessage(message), this.state.roundManager.members);
+                this.state.roundManager = new RoundManager(this.state.roundManager.members, this.state.roundManager.timeTurnStarted);
             }
+
             this.renderComponent();
 
             window.addEventListener("message", (event: MessageEvent<ComponentMessage>) => {
@@ -68,12 +70,12 @@ module Kosy.Integration.Round {
                 case "receive-start-application":
                     this.state.notes = `${message.payload}`;
                     if (this.currentClient.clientUuid == this.initializer.clientUuid) {
-                        this.state.roundManager.startRound();
+                        this.state.roundManager.startRound((m) => this.processComponentMessage(m));
                     }
                     this.renderComponent();
                     break;
                 case "receive-end-turn":
-                    this.state.roundManager.endTurn();
+                    this.state.roundManager.endTurn((m) => this.processComponentMessage(m));
                     if (!this.state.roundManager.haveAllMembersTakenTurn()) {
                         this.renderComponent();
                     } else {

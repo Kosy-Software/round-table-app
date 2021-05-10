@@ -10,19 +10,26 @@ export class RoundManager {
     public pausedTime: number;
 
     private currentInterval: number;
-    private dispatch: ((msg: ComponentMessage) => any);
 
-    public constructor(dispatch: ((msg: ComponentMessage) => any), members?: Array<Member>, isPaused?: boolean, timeTurnStarted?: Date,) {
+    public constructor(members?: Array<Member>, timeTurnStarted?: Date, isPaused?: boolean, pausedTime?: number) {
         if (members) {
             this.members = members;
         }
-        this.dispatch = dispatch;
+        if (timeTurnStarted) {
+            this.timeTurnStarted = timeTurnStarted;
+        }
+        if (isPaused) {
+            this.isPaused = isPaused;
+        }
+        if (pausedTime) {
+            this.pausedTime = pausedTime;
+        }
         this.currentSpeaker = this.members.find(member => member.tookTurn == false);
     }
 
-    public startRound() {
+    public startRound(dispatch: ((msg: ComponentMessage) => any)) {
         this.currentSpeaker = this.members[0];
-        this.startTurn();
+        this.startTurn(dispatch);
     }
 
     //Add member to the table
@@ -49,7 +56,7 @@ export class RoundManager {
     }
 
     //End turn for member
-    public endTurn() {
+    public endTurn(dispatch: ((msg: ComponentMessage) => any)) {
         clearInterval(this.currentInterval);
 
         this.timeTurnStarted = null;
@@ -63,7 +70,7 @@ export class RoundManager {
 
         if (!this.haveAllMembersTakenTurn()) {
             this.currentSpeaker = this.members.find(member => member.tookTurn == false);
-            this.startTurn();
+            this.startTurn(dispatch);
         } else {
             this.currentSpeaker = null;
         }
@@ -79,15 +86,15 @@ export class RoundManager {
         return this.members.find(member => member.tookTurn == false) == null;
     }
 
-    private startTurn() {
+    private startTurn(dispatch: ((msg: ComponentMessage) => any)) {
         this.timeTurnStarted = new Date();
         this.pausedTime = 0;
         this.isPaused = false;
         //Every second ask to update time
-        this.currentInterval = window.setInterval(() => this.refreshElapsedTime(), 1000);
+        this.currentInterval = window.setInterval(() => this.refreshElapsedTime(dispatch), 1000);
     }
 
-    private refreshElapsedTime() {
-        this.dispatch({ type: "update-timer" });
+    private refreshElapsedTime(dispatch: ((msg: ComponentMessage) => any)) {
+        dispatch({ type: "update-timer" });
     }
 }
