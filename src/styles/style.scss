@@ -183,34 +183,41 @@ button {
 }
 
 .input-row{
-    display: inline-flex;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    justify-content: flex-start;
-    margin-top: 20px;
-    padding-left: 60px;
-    padding-right: 60px;
-    max-height: 52px;
+    padding: 10px 0px 0px;  
+    margin: 16px;
 }
 
 .timer-box {
+    display: flex;
+    flex-grow: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0px;   
+    margin-right: 10px;
+
     background-color: colors.$color-grey-light;
     color: colors.$color-primary;
     font-weight: bold;
-    padding: 16px 20px;
     border-radius: $button-border-radius;
-    margin-right: 10px;
+    width: 100px;
     text-align: center;
 }
 
-#update-turn {  
+#play-turn, #pause-turn {  
     margin-right: 10px;
+    flex-grow: 0;
 }
 
 #end-turn {
-    flex-grow: 2;
+    flex-grow: 0;
 }
 
-.active {
+#timer {
     font-weight: 600;
     font-size: 24px;
     line-height: 30px;    

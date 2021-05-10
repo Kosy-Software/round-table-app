@@ -1,5 +1,3 @@
-import { Member } from "./member"
-
 /// Messages that are relayed to all of the clients
 export type AppMessage =
     | ReceiveStartApplication | ReceiveEndTurn | ReceiveUpdateTimer | ReceiveUpdateTurn

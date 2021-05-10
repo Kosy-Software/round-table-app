@@ -15,18 +15,24 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         dispatch({ type: "end-turn" });
     }
 
-    let updateTurnButton = viewingElement.querySelector("#update-turn") as HTMLInputElement;
-    let pauseImage = updateTurnButton.querySelector("#pause") as HTMLImageElement;
-    //let playImage = updateTurnButton.querySelector("#play") as HTMLImageElement;
-    pauseImage.style.visibility = state.roundManager.isPaused ? 'hidden' : 'shown';
+    let pauseTurnButton = viewingElement.querySelector("#pause-turn") as HTMLInputElement;
+    let playTurnButton = viewingElement.querySelector("#play-turn") as HTMLInputElement;
 
-    updateTurnButton.onclick = (event: Event) => {
-        dispatch({ type: "update-turn", payload: !state.roundManager.isPaused });
+    pauseTurnButton.style.display = state.roundManager.isPaused ? 'none' : 'shown';
+    playTurnButton.style.display = state.roundManager.isPaused ? 'shown' : 'none';
+
+    playTurnButton.onclick = (event: Event) => {
+        dispatch({ type: "update-turn", payload: true });
+    }
+    pauseTurnButton.onclick = (event: Event) => {
+        dispatch({ type: "update-turn", payload: false });
     }
 
+    let timerElement = viewingElement.querySelector('#timer');
     if (state.roundManager.timeTurnStarted != null) {
-        let timerElement = viewingElement.querySelector('#timer');
         timerElement.innerHTML = formatDifference(state.roundManager.timeTurnStarted, state.roundManager.pausedTime);
+    } else {
+        timerElement.innerHTML = '00:00';
     }
 
     if (state.roundManager.isPaused) {
@@ -38,8 +44,10 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         if (state.roundManager.currentSpeaker.clientInfo.clientUuid == state.currentClient.clientUuid) {
             speakerElement.innerHTML = 'It\s <span class="highlight">your</span> turn now!';
         } else {
+            pauseTurnButton.style.display = 'none';
+            playTurnButton.style.display = 'none';
+            endTurnButton.style.display = 'none';
             speakerElement.innerHTML = state.roundManager.getNextSpeaker() != null ? `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking a turn` : `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking the <span class="highlight">last</span> turn`;
-            endTurnButton.style.visibility = 'hidden';
         }
     }
     if (state.roundManager.getNextSpeaker() != null) {

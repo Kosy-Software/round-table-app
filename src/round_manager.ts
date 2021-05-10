@@ -12,7 +12,7 @@ export class RoundManager {
     private currentInterval: number;
     private dispatch: ((msg: ComponentMessage) => any);
 
-    public constructor(dispatch: ((msg: ComponentMessage) => any), members?: Array<Member>) {
+    public constructor(dispatch: ((msg: ComponentMessage) => any), members?: Array<Member>, isPaused?: boolean, timeTurnStarted?: Date,) {
         if (members) {
             this.members = members;
         }
@@ -52,6 +52,7 @@ export class RoundManager {
     public endTurn() {
         clearInterval(this.currentInterval);
 
+        this.timeTurnStarted = null;
         this.currentSpeaker.tookTurn = true;
 
         var index: number;
@@ -62,6 +63,7 @@ export class RoundManager {
 
         if (!this.haveAllMembersTakenTurn()) {
             this.currentSpeaker = this.members.find(member => member.tookTurn == false);
+            this.startTurn();
         } else {
             this.currentSpeaker = null;
         }

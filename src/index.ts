@@ -81,7 +81,7 @@ module Kosy.Integration.Round {
                     }
                     break;
                 case "receive-update-turn":
-                    this.state.roundManager.isPaused = !this.state.roundManager.isPaused;
+                    this.state.roundManager.isPaused = message.payload;
                     this.renderComponent();
                     break;
                 case "receive-update-timer":
