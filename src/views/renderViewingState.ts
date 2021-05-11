@@ -15,45 +15,39 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         dispatch({ type: "end-turn" });
     }
 
-    console.log(state.roundManager);
-
     let updateTurnButton = viewingElement.querySelector("#update-turn") as HTMLInputElement;
 
     let playImage = viewingElement.querySelector('#play') as HTMLImageElement;
     let pauseImage = viewingElement.querySelector('#pause') as HTMLImageElement;
 
-    pauseImage.style.display = state.roundManager.isPaused ? 'none' : 'shown';
-    playImage.style.display = state.roundManager.isPaused ? 'shown' : 'none';
+    pauseImage.style.display = state.isPaused ? 'none' : 'shown';
+    playImage.style.display = state.isPaused ? 'shown' : 'none';
 
     updateTurnButton.onclick = (event: Event) => {
-        dispatch({ type: "update-turn", payload: !state.roundManager.isPaused });
+        dispatch({ type: "update-turn", payload: !state.isPaused });
     }
 
     let timerElement = viewingElement.querySelector('#timer');
-    if (state.roundManager.timeTurnStarted != null) {
-        timerElement.innerHTML = formatDifference(state.roundManager.timeTurnStarted, state.roundManager.pausedTime);
-    } else {
-        timerElement.innerHTML = '00:00';
+    if (state.timeTurnStarted != null) {
+        timerElement.innerHTML = formatDifference(state.timeTurnStarted, state.pausedTime);
     }
 
-    if (state.roundManager.isPaused) {
-        state.roundManager.pausedTime += 1000;
-    }
+    let nextSpeaker = state.members.find(member => member.tookTurn == false && member != state.currentSpeaker);
 
-    if (state.roundManager.currentSpeaker != null) {
+    if (state.currentSpeaker != null) {
         let speakerElement = viewingElement.querySelector('#speaker');
-        if (state.roundManager.currentSpeaker.clientInfo.clientUuid == state.currentClient.clientUuid) {
+        if (state.currentSpeaker.clientInfo.clientUuid == state.currentClient.clientUuid) {
             speakerElement.innerHTML = 'It\s <span class="highlight">your</span> turn now!';
         } else {
             updateTurnButton.style.display = 'none';
             endTurnButton.style.display = 'none';
-            speakerElement.innerHTML = state.roundManager.getNextSpeaker() != null ? `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking a turn` : `<span class="highlight">${state.roundManager.currentSpeaker.clientInfo.clientName}</span> is taking the <span class="highlight">last</span> turn`;
+            speakerElement.innerHTML = nextSpeaker != null ? `<span class="highlight">${state.currentSpeaker.clientInfo.clientName}</span> is taking a turn` : `<span class="highlight">${state.currentSpeaker.clientInfo.clientName}</span> is taking the <span class="highlight">last</span> turn`;
         }
     }
-    if (state.roundManager.getNextSpeaker() != null) {
+    if (nextSpeaker != null) {
         let nextSpeakerElement = viewingElement.querySelector('#next-speaker');
-        nextSpeakerElement.innerHTML = state.roundManager.getNextSpeaker().clientInfo.clientUuid == state.currentClient.clientUuid
-            ? 'You are next' : `${state.roundManager.getNextSpeaker().clientInfo.clientName} is next`;
+        nextSpeakerElement.innerHTML = nextSpeaker.clientInfo.clientUuid == state.currentClient.clientUuid
+            ? 'You are next' : `${nextSpeaker.clientInfo.clientName} is next`;
     }
 
     return viewingElement;

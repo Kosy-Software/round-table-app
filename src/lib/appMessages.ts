@@ -1,10 +1,18 @@
 /// Messages that are relayed to all of the clients
 export type AppMessage =
-    | ReceiveStartApplication | ReceiveEndTurn | ReceiveUpdateTimer | ReceiveUpdateTurn
+    | ReceiveStartApplication | ReceiveEndTurn | ReceiveUpdateTimer | ReceiveUpdateTurn | ReceiveRestartRound | ReceiveCloseApplication
 
 export interface ReceiveStartApplication {
     type: "receive-start-application";
     payload: string;
+}
+
+export interface ReceiveCloseApplication {
+    type: "receive-close-application";
+}
+
+export interface ReceiveRestartRound {
+    type: "receive-restart-round";
 }
 
 export interface ReceiveEndTurn {
@@ -22,11 +30,19 @@ export interface ReceiveUpdateTimer {
 
 /// Internal component messages
 export type ComponentMessage =
-    | StartApplication | EndTurn | UpdateTimer | UpdateTurn
+    | StartApplication | EndTurn | UpdateTimer | UpdateTurn | RestartRound | CloseApplication
 
 export interface StartApplication {
     type: "start-application";
     payload: string;
+}
+
+export interface CloseApplication {
+    type: "close-application";
+}
+
+export interface RestartRound {
+    type: "restart-round";
 }
 
 export interface EndTurn {

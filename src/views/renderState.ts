@@ -3,6 +3,7 @@ import { ComponentMessage } from '../lib/appMessages';
 import { renderViewingState } from './renderViewingState';
 import { renderSetupState } from './renderSetupState';
 import { renderWaitingState } from './renderWaitingState';
+import { renderEndedState } from './renderEndedState';
 
 type Dispatch = (msg: ComponentMessage) => void;
 type RenderView = (state: ComponentState, dispatch: Dispatch) => HTMLElement;
@@ -15,7 +16,11 @@ export function render(state: ComponentState, dispatch: Dispatch): void {
         renderView = renderViewingState;
     } else {
         if (state.currentClient.clientUuid == state.initializer.clientUuid) {
-            renderView = renderSetupState;
+            if (state.ended) {
+                renderView = renderEndedState;
+            } else {
+                renderView = renderSetupState;
+            }
         } else {
             renderView = renderWaitingState;
         }

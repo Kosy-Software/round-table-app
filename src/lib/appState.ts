@@ -1,10 +1,15 @@
 import { ClientInfo } from '@kosy/kosy-app-api/types';
-import { RoundManager } from '../round_manager';
+import { Member } from './member';
 
 export interface AppState {
     /// This state is only set once in this app
     notes?: string;
-    roundManager: RoundManager;
+    members?: Array<Member>;
+    currentSpeaker?: Member;
+    timeTurnStarted?: Date;
+    isPaused?: boolean;
+    pausedTime?: number;
+    ended?: boolean;
 }
 
 export interface ComponentState extends AppState {
