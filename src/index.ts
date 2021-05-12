@@ -13,7 +13,6 @@ module Kosy.Integration.Round {
         private initializer: ClientInfo;
         private currentClient: ClientInfo;
         private currentInterval: number;
-        private pauseStartTime: Date;
 
         private kosyApi = new KosyApi<AppState, AppMessage>({
             onClientHasJoined: (client) => this.onClientHasJoined(client),
@@ -24,11 +23,12 @@ module Kosy.Integration.Round {
         })
 
         public async start() {
-            console.log("The app has been started");
             let initialInfo = await this.kosyApi.startApp();
             this.initializer = initialInfo.clients[initialInfo.initializerClientUuid];
             this.currentClient = initialInfo.clients[initialInfo.currentClientUuid];
             this.state = initialInfo.currentAppState ?? this.state;
+
+            console.log(this.state);
 
             if (this.state.members == null) {
                 this.state.members = new Array<Member>();
@@ -56,13 +56,14 @@ module Kosy.Integration.Round {
         public onClientHasJoined(client: ClientInfo) {
             if (this.currentClient != null && this.initializer != null) {
                 this.addMember(client);
+                this.renderComponent();
             }
         }
 
         public onClientHasLeft(clientUuid: string) {
-            if (this.currentClient.clientUuid === this.initializer.clientUuid) {
-                this.removeMember(clientUuid);
-            }
+            this.removeMember(clientUuid);
+            this.renderComponent();
+
             if (clientUuid === this.initializer.clientUuid && !this.state.notes) {
                 this.kosyApi.stopApp();
             }
@@ -89,7 +90,7 @@ module Kosy.Integration.Round {
                 case "receive-restart-round":
                     this.state.ended = null;
                     this.state.currentSpeaker = null;
-                    this.pauseStartTime = null;
+                    this.state.pauseStartTime = null;
                     this.state.notes = null;
                     this.state.isPaused = false;
                     this.state.timeTurnStarted = null;
@@ -98,13 +99,13 @@ module Kosy.Integration.Round {
                 case "receive-update-turn":
                     this.state.isPaused = message.payload;
                     if (this.state.isPaused) {
-                        this.pauseStartTime = new Date();
+                        this.state.pauseStartTime = new Date();
                         this.endInterval();
                     } else {
                         let updatedTime = new Date().getTime();
-                        let difference = (updatedTime - this.pauseStartTime.getTime());
+                        let difference = (updatedTime - this.state.pauseStartTime.getTime());
                         this.state.pausedTime += difference;
-                        this.pauseStartTime = null;
+                        this.state.pauseStartTime = null;
                         this.startInterval();
                     }
                     this.renderComponent();
@@ -152,6 +153,7 @@ module Kosy.Integration.Round {
                 timeTurnStarted: this.state.timeTurnStarted,
                 currentSpeaker: this.state.currentSpeaker,
                 pausedTime: this.state.pausedTime,
+                pauseStartTime: this.state.pauseStartTime,
                 isPaused: this.state.isPaused,
                 ended: this.state.ended,
             }, (message) => this.processComponentMessage(message));
@@ -173,18 +175,9 @@ module Kosy.Integration.Round {
 
         //Remove member from list when they leave the talbe
         public removeMember(clientUuid: string) {
-            var member: Member;
-
-            for (let index = 0; index < this.state.members.length; index++) {
-                if (clientUuid == this.state.members[index].clientInfo.clientUuid) {
-                    member = this.state.members[index];
-                    return;
-                }
-            }
-
-            var index: number;
+            let member = this.state.members.find((m) => m.clientInfo.clientUuid == clientUuid);
             if (member != null) {
-                index = this.state.members.indexOf(member);
+                let index = this.state.members.indexOf(member);
                 this.state.members.splice(index, 1);
             }
         }

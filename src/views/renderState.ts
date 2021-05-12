@@ -12,7 +12,7 @@ export function render(state: ComponentState, dispatch: Dispatch): void {
     let renderView: RenderView;
     let rootNode = document.getElementById("root");
 
-    if (state?.notes) {
+    if (state?.notes != null) {
         renderView = renderViewingState;
     } else {
         if (state.currentClient.clientUuid == state.initializer.clientUuid) {

@@ -12,20 +12,9 @@ export function renderSetupState(state: ComponentState, dispatch: ((msg: Compone
     let viewingRoot = document.querySelector("#viewing") as HTMLTemplateElement;
     viewingRoot.hidden = true;
 
-    notesInput.oninput = (event: Event) => {
-        let notes = notesInput.value;
-        if (notes != null && notes != "") {
-            launchAppBtn.removeAttribute("disabled");
-            launchAppBtn.classList.add("valid");
-        } else {
-            launchAppBtn.setAttribute("disabled", "disabled");
-        }
-    }
-
     //This sets up the round notes input element -> on input changed -> relay a message
     launchAppBtn.onclick = (event: Event) => {
-        let notes = notesInput.value;
-        dispatch({ type: "start-application", payload: notes });
+        dispatch({ type: "start-application", payload: notesInput.value ?? "" });
     }
 
     return setup;

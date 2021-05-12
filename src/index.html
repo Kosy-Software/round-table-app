@@ -23,14 +23,17 @@
         </div>
     </template>
     <template id="setup">
-        <div class="setup">
-            <h3>Turn taking app setup</h3>
-            <label>The app allows everyone to take a single turn. A timer will help to stay focused.</label>
-            <div class="gap"></div>
-            <textarea rows="4" cols="50" placeholder=" Add note for participants. For example meeting agenda or questions participants need to
-                answer" id="round-input"></textarea>
-            <label id="error"></label>
-            <button id="launch-application" disabled>Launch application</button>
+        <div class="wrapper">
+            <div class="setup">
+                <h3>Turn taking app setup</h3>
+                <label>The app allows everyone to take a single turn. A timer will help to stay focused.</label>
+                <div class="gap"></div>
+                <textarea rows="4" cols="50"
+                    placeholder=" Add note for participants. For example: meeting agenda or questions participants need to answer"
+                    id="round-input"></textarea>
+                <label id="error"></label>
+                <button id="launch-application" class="valid">Launch application</button>
+            </div>
         </div>
     </template>
     <template id="ended">
@@ -63,7 +66,7 @@
                     <button id="end-turn"> End the turn </button>
                 </div>
             </div>
-            <div class="notes">
+            <div id="notes-box" class="notes">
                 <h3>Notes for participants</h3>
                 <label id="notes"></label>
             </div>

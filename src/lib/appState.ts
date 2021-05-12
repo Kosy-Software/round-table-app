@@ -10,6 +10,7 @@ export interface AppState {
     isPaused?: boolean;
     pausedTime?: number;
     ended?: boolean;
+    pauseStartTime?: Date;
 }
 
 export interface ComponentState extends AppState {

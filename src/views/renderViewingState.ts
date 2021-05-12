@@ -5,9 +5,12 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
     let viewingRoot = document.querySelector("#viewing") as HTMLTemplateElement;
     let viewingElement = viewingRoot.content.firstElementChild.cloneNode(true) as HTMLElement;
 
-    if (state.notes != null) {
+    if (state.notes) {
         let notesElement = viewingElement.querySelector('#notes');
         notesElement.innerHTML = state.notes;
+    } else {
+        let notesBoxElement = viewingElement.querySelector('#notes-box') as HTMLElement;
+        notesBoxElement.style.display = 'none';
     }
 
     let endTurnButton = viewingElement.querySelector("#end-turn") as HTMLInputElement;
