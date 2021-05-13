@@ -32,7 +32,8 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
 
     let timerElement = viewingElement.querySelector('#timer');
     if (state.timeTurnStarted != null) {
-        timerElement.innerHTML = formatDifference(state.timeTurnStarted, state.pausedTime);
+        let hasNoPausedTime = !state.pausedTime && state.isPaused && state.pauseStartTime;
+        timerElement.innerHTML = formatDifference(state.timeTurnStarted, state.pausedTime, hasNoPausedTime ? state.pauseStartTime : null);
     }
 
     let nextSpeaker = state.members.find(member => member.tookTurn == false && member != state.currentSpeaker);
@@ -56,8 +57,11 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
     return viewingElement;
 }
 
-function formatDifference(startDate: Date, pausedTime: number): string {
-    let updatedTime = new Date().getTime();
+function formatDifference(startDate: Date, pausedTime: number, referenceDate?: Date): string {
+    var updatedTime = new Date().getTime();
+    if (referenceDate) {
+        updatedTime = referenceDate.getTime();
+    }
 
     let difference = (updatedTime - startDate.getTime()) - pausedTime;
 

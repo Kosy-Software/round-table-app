@@ -56,13 +56,11 @@ module Kosy.Integration.Round {
         public onClientHasJoined(client: ClientInfo) {
             if (this.currentClient != null && this.initializer != null) {
                 this.addMember(client);
-                this.renderComponent();
             }
         }
 
         public onClientHasLeft(clientUuid: string) {
             this.removeMember(clientUuid);
-            this.renderComponent();
 
             if (clientUuid === this.initializer.clientUuid && !this.state.notes) {
                 this.kosyApi.stopApp();
