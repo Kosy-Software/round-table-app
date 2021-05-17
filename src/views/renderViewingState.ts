@@ -31,9 +31,8 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
     }
 
     let timerElement = viewingElement.querySelector('#timer');
-    if (state.timeTurnStarted != null) {
-        let hasNoPausedTime = !state.pausedTime && state.isPaused && state.pauseStartTime;
-        timerElement.innerHTML = formatDifference(state.timeTurnStarted, state.pausedTime, hasNoPausedTime ? state.pauseStartTime : null);
+    if (state.timePassed != null) {
+        timerElement.innerHTML = formatDifference(state.timePassed);
     }
 
     let nextSpeaker = state.members.find(member => member.tookTurn == false && member != state.currentSpeaker);
@@ -57,16 +56,9 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
     return viewingElement;
 }
 
-function formatDifference(startDate: Date, pausedTime: number, referenceDate?: Date): string {
-    var updatedTime = new Date().getTime();
-    if (referenceDate) {
-        updatedTime = referenceDate.getTime();
-    }
-
-    let difference = (updatedTime - startDate.getTime()) - pausedTime;
-
-    let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((difference % (1000 * 60)) / 1000);
+function formatDifference(timePassed: number): string {
+    let minutes = Math.floor((timePassed % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((timePassed % (1000 * 60)) / 1000);
 
     let minutesString = (minutes < 10) ? "0" + minutes : minutes;
     let secondsString = (seconds < 10) ? "0" + seconds : seconds;

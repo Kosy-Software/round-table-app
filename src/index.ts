@@ -9,7 +9,7 @@ import { Member } from './lib/member';
 
 module Kosy.Integration.Round {
     export class App {
-        private state: AppState = {};
+        private state: AppState = { timePassed: 0 };
         private initializer: ClientInfo;
         private currentClient: ClientInfo;
         private currentInterval: number;
@@ -88,28 +88,27 @@ module Kosy.Integration.Round {
                 case "receive-restart-round":
                     this.state.ended = null;
                     this.state.currentSpeaker = null;
-                    this.state.pauseStartTime = null;
                     this.state.notes = null;
                     this.state.isPaused = false;
-                    this.state.timeTurnStarted = null;
                     this.renderComponent();
                     break;
                 case "receive-update-turn":
                     this.state.isPaused = message.payload;
-                    if (this.state.isPaused) {
-                        this.state.pauseStartTime = new Date();
-                        this.endInterval();
-                    } else {
-                        let updatedTime = new Date().getTime();
-                        let difference = (updatedTime - this.state.pauseStartTime.getTime());
-                        this.state.pausedTime += difference;
-                        this.state.pauseStartTime = null;
-                        this.startInterval();
+                    if (this.currentClient.clientUuid == this.initializer.clientUuid) {
+                        if (this.state.isPaused) {
+                            this.endInterval();
+                        } else {
+                            this.startInterval();
+                        }
                     }
                     this.renderComponent();
                     break;
                 case "receive-update-timer":
-                    this.renderComponent();
+                    if (!this.state.isPaused) {
+                        this.state.timePassed += 1000.0;
+                        console.log("Updating time " + this.state.timePassed);
+                        this.renderComponent();
+                    }
                     break;
             }
         }
@@ -148,12 +147,10 @@ module Kosy.Integration.Round {
                 currentClient: this.currentClient,
                 initializer: this.initializer,
                 members: this.state.members,
-                timeTurnStarted: this.state.timeTurnStarted,
                 currentSpeaker: this.state.currentSpeaker,
-                pausedTime: this.state.pausedTime,
-                pauseStartTime: this.state.pauseStartTime,
                 isPaused: this.state.isPaused,
                 ended: this.state.ended,
+                timePassed: this.state.timePassed,
             }, (message) => this.processComponentMessage(message));
         }
 
@@ -184,7 +181,6 @@ module Kosy.Integration.Round {
         public endTurn() {
             this.endInterval();
 
-            this.state.timeTurnStarted = null;
             this.state.currentSpeaker.tookTurn = true;
 
             var index: number;
@@ -207,11 +203,12 @@ module Kosy.Integration.Round {
         }
 
         private startTurn() {
-            this.state.timeTurnStarted = new Date();
-            this.state.pausedTime = 0;
+            this.state.timePassed = 0;
             this.state.isPaused = false;
             //Every second ask to update time
-            this.startInterval();
+            if (this.currentClient.clientUuid == this.initializer.clientUuid) {
+                this.startInterval();
+            }
         }
 
         private startInterval() {

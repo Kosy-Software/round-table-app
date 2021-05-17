@@ -6,11 +6,9 @@ export interface AppState {
     notes?: string;
     members?: Array<Member>;
     currentSpeaker?: Member;
-    timeTurnStarted?: Date;
+    timePassed: number;
     isPaused?: boolean;
-    pausedTime?: number;
     ended?: boolean;
-    pauseStartTime?: Date;
 }
 
 export interface ComponentState extends AppState {
