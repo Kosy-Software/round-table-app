@@ -95,6 +95,7 @@ module Kosy.Integration.Round {
                     this.state.currentSpeaker = null;
                     this.state.notes = null;
                     this.state.isPaused = false;
+                    this.resetMembers();
                     this.renderComponent();
                     break;
                 case "receive-update-turn":
@@ -163,18 +164,18 @@ module Kosy.Integration.Round {
             console.log(`${this.currentClient?.clientName ?? "New user"} logged: `, ...message);
         }
 
-        public startRound() {
+        private startRound() {
             this.state.currentSpeaker = this.state.members[0];
             this.startTurn();
         }
 
         //Add member to the table
-        public addMember(clientInfo: ClientInfo) {
+        private addMember(clientInfo: ClientInfo) {
             this.state.members.push(new Member(clientInfo));
         }
 
         //Remove member from list when they leave the talbe
-        public removeMember(clientUuid: string) {
+        private removeMember(clientUuid: string) {
             let member = this.state.members.find((m) => m.clientInfo.clientUuid == clientUuid);
             if (member != null) {
                 let index = this.state.members.indexOf(member);
@@ -183,7 +184,7 @@ module Kosy.Integration.Round {
         }
 
         //End turn for member
-        public endTurn() {
+        private endTurn() {
             this.endInterval();
 
             this.state.currentSpeaker.tookTurn = true;
@@ -203,8 +204,12 @@ module Kosy.Integration.Round {
         }
 
         //Check if there is any member that did not take turn yet
-        public haveAllMembersTakenTurn(): boolean {
+        private haveAllMembersTakenTurn(): boolean {
             return this.state.members.find(member => member.tookTurn == false) == null;
+        }
+
+        private resetMembers() {
+            this.state.members.forEach((element) => element.tookTurn = false);
         }
 
         private startTurn() {
