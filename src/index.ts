@@ -32,8 +32,13 @@ module Kosy.Integration.Round {
 
             if (this.state.members == null) {
                 this.state.members = new Array<Member>();
-                if (this.currentClient.clientUuid == this.initializer.clientUuid) {
-                    this.addMember(this.currentClient);
+                if (initialInfo.clients && Object.keys(initialInfo.clients).length > 0) {
+                    Object.keys(initialInfo.clients).forEach((element) => this.addMember(initialInfo.clients[element]));
+                }
+                else {
+                    if (this.currentClient.clientUuid == this.initializer.clientUuid) {
+                        this.addMember(this.currentClient);
+                    }
                 }
             }
 
