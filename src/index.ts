@@ -194,6 +194,10 @@ module Kosy.Integration.Round {
 
             if (!this.haveAllMembersTakenTurn()) {
                 this.state.currentSpeaker = this.state.members.find(member => member.tookTurn == false);
+                if (this.state.currentSpeaker.clientInfo.clientUuid == this.currentClient.clientUuid) {
+                    var audio = new Audio('assets/your-turn.wav');
+                    audio.play();
+                }
                 this.startTurn();
             } else {
                 this.state.currentSpeaker = null;
