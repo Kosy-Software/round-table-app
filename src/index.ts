@@ -14,10 +14,11 @@ module Kosy.Integration.Round {
         private currentClient: ClientInfo;
         private currentInterval: number;
 
-        private kosyApi = new KosyApi<AppState, AppMessage>({
+        private kosyApi = new KosyApi<AppState, AppMessage, AppMessage>({
             onClientHasJoined: (client) => this.onClientHasJoined(client),
             onClientHasLeft: (clientUuid) => this.onClientHasLeft(clientUuid),
-            onReceiveMessage: (message) => this.processMessage(message),
+            onReceiveMessageAsClient: (message) => this.processMessage(message),
+            onReceiveMessageAsHost: (message) => message,
             onRequestState: () => this.getState(),
             onProvideState: (newState: AppState) => this.setState(newState)
         })
