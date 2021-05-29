@@ -18,7 +18,7 @@ module Kosy.Integration.Round {
             onClientHasJoined: (client) => this.onClientHasJoined(client),
             onClientHasLeft: (clientUuid) => this.onClientHasLeft(clientUuid),
             onReceiveMessageAsClient: (message) => this.processMessage(message),
-            onReceiveMessageAsHost: (message) => message,
+            onReceiveMessageAsHost: (message) => this.processMessageAsHost(message),
             onRequestState: () => this.getState(),
             onProvideState: (newState: AppState) => this.setState(newState)
         })
@@ -69,11 +69,29 @@ module Kosy.Integration.Round {
             this.removeMember(clientUuid);
         }
 
+        public processMessageAsHost(message: AppMessage) {
+            switch (message.type) {
+                case "receive-start-application":
+                    this.resetTurn();
+                    this.startInterval();
+                    message.payload.currentSpeaker = this.state.members[0];
+                    break;
+                case "receive-end-turn":
+                    this.endTurn();
+                    let nextSpeaker = this.nextSpeaker();
+                    message.payload.nextSpeaker = nextSpeaker;
+                    break;
+            }
+
+            return message;
+        }
+
         public processMessage(message: AppMessage) {
             switch (message.type) {
                 case "receive-start-application":
-                    this.state.notes = `${message.payload}`;
-                    this.startRound();
+                    this.resetTurn();
+                    this.state.notes = `${message.payload.note}`;
+                    this.state.currentSpeaker = message.payload.currentSpeaker;
                     this.renderComponent();
                     break;
                 case "receive-close-application":
@@ -81,7 +99,12 @@ module Kosy.Integration.Round {
                     break;
                 case "receive-end-turn":
                     this.endTurn();
-                    if (this.haveAllMembersTakenTurn()) {
+                    this.state.currentSpeaker = message.payload.nextSpeaker;
+                    if (this.state.currentSpeaker != null) {
+                        this.resetTurn();
+                    } else {
+                        this.endInterval();
+                        this.state.isPaused = null;
                         this.state.ended = true;
                         this.state.notes = null;
                     }
@@ -97,19 +120,11 @@ module Kosy.Integration.Round {
                     break;
                 case "receive-update-turn":
                     this.state.isPaused = message.payload;
-                    if (this.currentClient.clientUuid == this.initializer.clientUuid) {
-                        if (this.state.isPaused) {
-                            this.endInterval();
-                        } else {
-                            this.startInterval();
-                        }
-                    }
                     this.renderComponent();
                     break;
                 case "receive-update-timer":
                     if (!this.state.isPaused) {
                         this.state.timePassed += 1000.0;
-                        console.log("Updating time " + this.state.timePassed);
                         this.renderComponent();
                     }
                     break;
@@ -120,14 +135,14 @@ module Kosy.Integration.Round {
             switch (message.type) {
                 case "start-application":
                     //Notify all other clients that the round has started
-                    this.kosyApi.relayMessage({ type: "receive-start-application", payload: message.payload });
+                    this.kosyApi.relayMessage({ type: "receive-start-application", payload: { note: message.payload, currentSpeaker: null } });
                     break;
                 case "close-application":
                     //Notify all other clients that the app has ended
                     this.kosyApi.relayMessage({ type: "receive-close-application" });
                     break;
                 case "end-turn":
-                    this.kosyApi.relayMessage({ type: "receive-end-turn" });
+                    this.kosyApi.relayMessage({ type: "receive-end-turn", payload: { endedSpeaker: this.state.currentSpeaker, nextSpeaker: null } });
                     break;
                 case "update-turn":
                     this.kosyApi.relayMessage({ type: "receive-update-turn", payload: message.payload });
@@ -161,17 +176,12 @@ module Kosy.Integration.Round {
             console.log(`${this.currentClient?.clientName ?? "New user"} logged: `, ...message);
         }
 
-        private startRound() {
-            this.state.currentSpeaker = this.state.members[0];
-            this.startTurn();
-        }
-
         //Add member to the table
         private addMember(clientInfo: ClientInfo) {
             this.state.members.push(new Member(clientInfo));
         }
 
-        //Remove member from list when they leave the talbe
+        //Remove member from list when they leave the table
         private removeMember(clientUuid: string) {
             let member = this.state.members.find((m) => m.clientInfo.clientUuid == clientUuid);
             if (member != null) {
@@ -182,26 +192,19 @@ module Kosy.Integration.Round {
 
         //End turn for member
         private endTurn() {
-            this.endInterval();
-
-            this.state.currentSpeaker.tookTurn = true;
-
-            var index: number;
-            if (this.state.currentSpeaker != null) {
-                index = this.state.members.indexOf(this.state.currentSpeaker);
-                this.state.members.splice(index, 1, this.state.currentSpeaker);
-            }
-
-            if (!this.haveAllMembersTakenTurn()) {
-                this.state.currentSpeaker = this.state.members.find(member => member.tookTurn == false);
-                if (this.state.currentSpeaker.clientInfo.clientUuid == this.currentClient.clientUuid) {
-                    var audio = new Audio('assets/your-turn.wav');
-                    audio.play();
+            for (let index = 0; index < this.state.members.length; index++) {
+                if (this.state.members[index].clientInfo.clientUuid == this.state.currentSpeaker.clientInfo.clientUuid) {
+                    this.state.members[index].tookTurn = true;
                 }
-                this.startTurn();
-            } else {
-                this.state.currentSpeaker = null;
             }
+        }
+
+        private nextSpeaker(): Member {
+            if (!this.haveAllMembersTakenTurn()) {
+                return this.state.members.find(member => member.tookTurn == false);
+            }
+
+            return null;
         }
 
         //Check if there is any member that did not take turn yet
@@ -213,21 +216,23 @@ module Kosy.Integration.Round {
             this.state.members.forEach((element) => element.tookTurn = false);
         }
 
-        private startTurn() {
+        private resetTurn() {
             this.state.timePassed = 0;
             this.state.isPaused = false;
-            //Every second ask to update time
-            if (this.currentClient.clientUuid == this.initializer.clientUuid) {
-                this.startInterval();
-            }
         }
 
         private startInterval() {
+            console.log("Starting interval");
             this.currentInterval = window.setInterval(() => this.refreshElapsedTime(), 1000);
+            console.log("Current interval: " + this.currentInterval);
         }
 
         private endInterval() {
-            window.clearInterval(this.currentInterval);
+            if (this.currentInterval) {
+                console.log("Clearing interval");
+                console.log("Current interval to clear: " + this.currentInterval);
+                window.clearInterval(this.currentInterval);
+            }
         }
 
         private refreshElapsedTime() {

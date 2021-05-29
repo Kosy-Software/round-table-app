@@ -35,7 +35,7 @@ export function renderViewingState(state: ComponentState, dispatch: ((msg: Compo
         timerElement.innerHTML = formatDifference(state.timePassed);
     }
 
-    let nextSpeaker = state.members.find(member => member.tookTurn == false && member != state.currentSpeaker);
+    let nextSpeaker = state.members.find(member => member.tookTurn == false && member.clientInfo.clientUuid != state.currentSpeaker.clientInfo.clientUuid);
 
     if (state.currentSpeaker != null) {
         let speakerElement = viewingElement.querySelector('#speaker');

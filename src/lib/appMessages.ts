@@ -1,10 +1,12 @@
+import { Member } from "./member"
+
 /// Messages that are relayed to all of the clients
 export type AppMessage =
     | ReceiveStartApplication | ReceiveEndTurn | ReceiveUpdateTimer | ReceiveUpdateTurn | ReceiveRestartRound | ReceiveCloseApplication
 
 export interface ReceiveStartApplication {
     type: "receive-start-application";
-    payload: string;
+    payload: { note: string, currentSpeaker: Member };
 }
 
 export interface ReceiveCloseApplication {
@@ -17,6 +19,7 @@ export interface ReceiveRestartRound {
 
 export interface ReceiveEndTurn {
     type: "receive-end-turn";
+    payload: { endedSpeaker: Member, nextSpeaker: Member }
 }
 
 export interface ReceiveUpdateTurn {
