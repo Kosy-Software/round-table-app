@@ -7,7 +7,7 @@
         "build": "webpack --mode production"
     },
     "dependencies": {
-        "@kosy/kosy-app-api": "^0.3.10"
+        "@kosy/kosy-app-api": "^0.3.11"
     },
     "devDependencies": {
         "@babel/core": "^7.13.10",
