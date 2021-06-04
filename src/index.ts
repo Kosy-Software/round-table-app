@@ -41,6 +41,7 @@ module Kosy.Integration.Round {
                         this.addMember(this.currentClient);
                     }
                 }
+                this.sortMembers();
             }
 
             this.renderComponent();
@@ -63,12 +64,14 @@ module Kosy.Integration.Round {
             console.log(`New client (Name: ${client.clientName}) is sitting at: ${client.clientLocation.seatNumber}`);
             if (this.currentClient != null && this.initializer != null) {
                 this.addMember(client);
+                this.sortMembers();
             }
         }
 
         public onClientHasLeft(clientUuid: string) {
             console.log("A client has left: " + clientUuid);
             this.removeMember(clientUuid);
+            this.sortMembers();
         }
 
         public processMessageAsHost(message: AppMessage) {
@@ -178,6 +181,11 @@ module Kosy.Integration.Round {
 
         private log(...message: any) {
             console.log(`${this.currentClient?.clientName ?? "New user"} logged: `, ...message);
+        }
+
+        private sortMembers() {
+            let sortOrder = [0, 2, 6, 5, 9, 7, 3, 1, 8, 4];
+            this.state.members.sort((a, b) => sortOrder.indexOf(a.clientInfo.clientLocation.seatNumber) > sortOrder.indexOf(b.clientInfo.clientLocation.seatNumber) ? 1 : -1);
         }
 
         //Add member to the table
