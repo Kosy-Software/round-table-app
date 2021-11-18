@@ -29,7 +29,7 @@ module Kosy.Integration.Round {
             this.currentClient = initialInfo.clients[initialInfo.currentClientUuid];
             this.state = initialInfo.currentAppState ?? this.state;
 
-            console.log(initialInfo);
+            this.log(initialInfo);
 
             if (this.state.members == null) {
                 this.state.members = new Array<Member>();
@@ -61,7 +61,7 @@ module Kosy.Integration.Round {
         }
 
         public onClientHasJoined(client: ClientInfo) {
-            console.log(`New client (Name: ${client.clientName}) is sitting at: ${client.clientLocation.seatNumber}`);
+            this.log(`New client (Name: ${client.clientName}) is sitting at: ${client.seatNumber ?? "non-existing table"}`);
             if (this.currentClient != null && this.initializer != null) {
                 this.addMember(client);
                 this.sortMembers();
@@ -69,13 +69,13 @@ module Kosy.Integration.Round {
         }
 
         public onClientHasLeft(clientUuid: string) {
-            console.log("A client has left: " + clientUuid);
+            this.log("A client has left: " + clientUuid);
             this.removeMember(clientUuid);
             this.sortMembers();
         }
 
         public processMessageAsHost(message: AppMessage) {
-            console.log("Message received as host: " + message.type);
+            this.log("Message received as host: " + message.type);
             switch (message.type) {
                 case "receive-start-application":
                     this.resetTurn();
@@ -138,7 +138,7 @@ module Kosy.Integration.Round {
         }
 
         private processComponentMessage(message: ComponentMessage) {
-            console.log("Message received as client: " + message.type);
+            this.log("Message received as client: " + message.type);
             switch (message.type) {
                 case "start-application":
                     //Notify all other clients that the round has started
@@ -185,7 +185,7 @@ module Kosy.Integration.Round {
 
         private sortMembers() {
             let sortOrder = [0, 2, 6, 5, 9, 7, 3, 1, 8, 4];
-            this.state.members.sort((a, b) => sortOrder.indexOf(a.clientInfo.clientLocation.seatNumber) > sortOrder.indexOf(b.clientInfo.clientLocation.seatNumber) ? 1 : -1);
+            this.state.members.sort((a, b) => sortOrder.indexOf(a.clientInfo.seatNumber ?? 0) > sortOrder.indexOf(b.clientInfo.seatNumber ?? 0) ? 1 : -1);
         }
 
         //Add member to the table
@@ -234,15 +234,15 @@ module Kosy.Integration.Round {
         }
 
         private startInterval() {
-            console.log("Starting interval");
+            this.log("Starting interval");
             this.currentInterval = window.setInterval(() => this.refreshElapsedTime(), 1000);
-            console.log("Current interval: " + this.currentInterval);
+            this.log("Current interval: " + this.currentInterval);
         }
 
         private endInterval() {
             if (this.currentInterval) {
-                console.log("Clearing interval");
-                console.log("Current interval to clear: " + this.currentInterval);
+                this.log("Clearing interval");
+                this.log("Current interval to clear: " + this.currentInterval);
                 window.clearInterval(this.currentInterval);
             }
         }

@@ -881,10 +881,10 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.5.tgz#9283c9ce5b289a3c4f61c12757469e59377f81f3"
   integrity sha512-6nFkfkmSeV/rqSaS4oWHgmpnYw194f6hmWF5is6b0J1naJZoiD0NTc9AiUwPHvWsowkjuHErCZT1wa0jg+BLIA==
 
-"@kosy/kosy-app-api@^0.3.11":
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/@kosy/kosy-app-api/-/kosy-app-api-0.3.11.tgz#4f086f6fb08c1628bb270725d7c71496c00e146b"
-  integrity sha512-gcBdoejrC++1bYafvdfXmycUk5+K+wKuGa15D3+oIEWGTBetY3gsIYzsfJD/wKclBtYjVBvcCfjH8tbFr0C6sA==
+"@kosy/kosy-app-api@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@kosy/kosy-app-api/-/kosy-app-api-0.4.1.tgz#fadaf52b56f63292445427a3dde66d33b447cb14"
+  integrity sha512-XJAEYsq4AR9URD5RzhN6D+88aH9I7BO/w0g2eLWKgs5xJH6vRF7Uk/g+QKHGt/2Yeg7qRG2gW3ZFS/te0xJqMA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
