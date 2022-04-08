@@ -184,7 +184,7 @@ module Kosy.Integration.Round {
         }
 
         private sortMembers() {
-            if (this.state.members.every(member => member.clientInfo.seatNumber > 0)) {
+            if (this.state.members.every(member => member.clientInfo.seatNumber === 0 || member.clientInfo.seatNumber > 0)) {
                 let sortOrder = [0, 2, 6, 5, 9, 7, 3, 1, 8, 4];
                 this.state.members.sort((a, b) => sortOrder.indexOf(a.clientInfo.seatNumber ?? 0) > sortOrder.indexOf(b.clientInfo.seatNumber ?? 0) ? 1 : -1);
             } else {
